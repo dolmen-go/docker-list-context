@@ -22,9 +22,12 @@ func main() {
 
 func _main() error {
 	var verbose bool
+	var dockerFile string
 	flag.BoolVar(&verbose, "v", false, "verbose mode: show ignored files on stderr")
+	flag.StringVar(&dockerFile, "f", "", "name of the `Dockerfile`")
+	flag.StringVar(&dockerFile, "-file", "", "name of the `Dockerfile`")
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(), "usage: %s [-v] [PATH]\n", os.Args[0])
+		fmt.Fprintf(flag.CommandLine.Output(), "usage: %s [-v] [PATH]\n\n", os.Args[0])
 		flag.CommandLine.PrintDefaults()
 	}
 	flag.Parse()
@@ -32,7 +35,7 @@ func _main() error {
 	switch flag.NArg() {
 	case 0:
 		// If the path is not explicitely given, check there is a Dockerfile
-		if _, err := os.Stat("Dockerfile"); errors.Is(err, os.ErrNotExist) {
+		if _, err := os.Stat("Dockerfile"); dockerFile == "" && errors.Is(err, os.ErrNotExist) {
 			return errors.New("no Dockerfile here")
 		}
 	case 1:
@@ -44,16 +47,25 @@ func _main() error {
 		os.Exit(2)
 	}
 
-	const dockerIgnore = ".dockerignore"
-
-	var ignorePatterns []string
-	if f, err := os.Open(dockerIgnore); err == nil {
-		if ignorePatterns, err = dockerignore.ReadAll(f); err != nil {
-			return fmt.Errorf(dockerIgnore+": %w", err)
-		}
-	} else if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
+	if dockerFile == "" {
+		dockerFile = "Dockerfile"
 	}
+
+	var dockerIgnore string
+	var ignorePatterns []string
+	// Handle .dockerignore attached to a Dockerfile
+	// https://github.com/moby/buildkit/releases/tag/dockerfile%2F1.1.0
+	for _, dockerIgnore = range []string{dockerFile + ".dockerignore", ".dockerignore"} {
+		if f, err := os.Open(dockerIgnore); err == nil {
+			if ignorePatterns, err = dockerignore.ReadAll(f); err != nil {
+				return fmt.Errorf(dockerIgnore+": %w", err)
+			}
+			break
+		} else if err != nil && !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+	}
+
 	ignore, err := fileutils.NewPatternMatcher(ignorePatterns)
 	if err != nil {
 		return fmt.Errorf(dockerIgnore+": %w", err)
