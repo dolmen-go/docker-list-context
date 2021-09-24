@@ -39,7 +39,6 @@ func _main() error {
 	var dockerFile string
 	flag.BoolVar(&verbose, "v", false, "verbose mode: show ignored files on stderr")
 	flag.StringVar(&dockerFile, "f", "", "name of the `Dockerfile`")
-	flag.StringVar(&dockerFile, "-file", "", "name of the `Dockerfile`")
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "usage: %s [-v] [PATH]\n\n", os.Args[0])
 		flag.CommandLine.PrintDefaults()
