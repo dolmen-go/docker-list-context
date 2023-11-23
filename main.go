@@ -21,8 +21,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/docker/docker/pkg/fileutils"
 	"github.com/moby/buildkit/frontend/dockerfile/dockerignore"
+	"github.com/moby/patternmatcher"
 )
 
 func main() {
@@ -80,7 +80,7 @@ func _main() error {
 		}
 	}
 
-	ignore, err := fileutils.NewPatternMatcher(ignorePatterns)
+	ignore, err := patternmatcher.New(ignorePatterns)
 	if err != nil {
 		return fmt.Errorf(dockerIgnore+": %w", err)
 	}
