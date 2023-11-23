@@ -17,8 +17,7 @@ $ docker-list-context -f Prj1 .
 ## Install
 
 ```console
-$ go get -u github.com/dolmen-go/docker-list-context
-$ go install github.com/dolmen-go/docker-list-context
+$ go install github.com/dolmen-go/docker-list-context@latest
 ```
 
 ## License
