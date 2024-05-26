@@ -1,5 +1,15 @@
 # docker-list-context -- list files taken by Docker in a build context
 
+
+`docker-list-context` lists files which are sent by the `docker build` command
+to the Docker daemon as the *build context*.
+
+You can reduce the build context (better performance, avoid leaking secrets) by ignoring
+files in a `.dockerignore` file.
+The official documentation for `.dockerignore` files is here: https://docs.docker.com/build/building/context/#dockerignore-files
+
+Tip: you can even ignore `Dockerfile` and `.dockerignore`, unless those files are referenced in the `Dockerfile`.
+
 ## Usage
 
 List context files for `docker build .` (using `Dockerfile.dockerignore` or `.dockerignore`):
@@ -22,7 +32,7 @@ $ go install github.com/dolmen-go/docker-list-context@latest
 
 ## License
 
-Copyright 2021-2023 Olivier Mengué
+Copyright 2021-2024 Olivier Mengué
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
