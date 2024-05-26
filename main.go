@@ -49,10 +49,17 @@ func _main() error {
 	switch flag.NArg() {
 	case 0:
 		// If the path is not explicitely given, check there is a Dockerfile
-		if _, err := os.Stat("Dockerfile"); dockerFile == "" && errors.Is(err, os.ErrNotExist) {
+		if _, err := os.Stat(dockerFile); dockerFile != "" && errors.Is(err, os.ErrNotExist) {
 			return errors.New("no Dockerfile here")
 		}
 	case 1:
+		if dockerFile != "" {
+			var err error
+			dockerFile, err = filepath.Abs(dockerFile)
+			if err != nil {
+				return err
+			}
+		}
 		if err := os.Chdir(flag.Arg(0)); err != nil {
 			return err
 		}
